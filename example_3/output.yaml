@@ -1,0 +1,135 @@
+# Aggregated Kustomize Output for example_3
+
+---
+# OVERLAY: prod
+apiVersion: v1
+data:
+  features.json: |
+    {
+      "new_billing_engine": true,
+      "beta_auth_flows": false
+    }
+  global.properties: |
+    ENVIRONMENT=production
+    LOG_LEVEL=warn
+    TRACING_ENABLED=true
+    DATACENTER=us-east-1
+kind: ConfigMap
+metadata:
+  name: prod-global-config-8kkb7m725k
+  namespace: prod-fleet
+---
+apiVersion: v1
+data:
+  JWT_SECRET: c3VwZXJfc2VjcmV0X2p3dF9rZXlfcHJvZF85OTgy
+  OAUTH_CLIENT_ID: cHJvZF9vYXV0aF9jbGllbnRfeHl6
+  OAUTH_CLIENT_SECRET: cHJvZF9vYXV0aF9zZWNyZXRfYWJj
+kind: Secret
+metadata:
+  name: prod-auth-secrets-4gfktc65c6
+  namespace: prod-fleet
+type: Opaque
+---
+apiVersion: v1
+data:
+  DB_PASSWORD: cHJvZF9kYl9zdXBlcl9zZWN1cmVfcHc=
+  STRIPE_API_KEY: c2tfbGl2ZV8xMjM0NTY3ODk=
+kind: Secret
+metadata:
+  name: prod-billing-secrets-98ddggkfgg
+  namespace: prod-fleet
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    fleet: enterprise
+  name: prod-auth-service
+  namespace: prod-fleet
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector:
+    app: auth
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    fleet: enterprise
+  name: prod-billing-service
+  namespace: prod-fleet
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector:
+    app: billing
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    fleet: enterprise
+  name: prod-auth-service
+  namespace: prod-fleet
+spec:
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+      - env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        envFrom:
+        - configMapRef:
+            name: prod-global-config-8kkb7m725k
+        - secretRef:
+            name: prod-auth-secrets-4gfktc65c6
+        image: registry.enterprise.com/auth-service:v2.4.1
+        name: app
+        ports:
+        - containerPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    fleet: enterprise
+  name: prod-billing-service
+  namespace: prod-fleet
+spec:
+  selector:
+    matchLabels:
+      app: billing
+  template:
+    metadata:
+      labels:
+        app: billing
+    spec:
+      containers:
+      - env:
+        - name: AUTH_SERVICE_HOST
+          value: prod-auth-service
+        - name: AUTH_SERVICE_URL
+          value: http://$(AUTH_SERVICE_HOST):8080
+        - name: STRIPE_API_VERSION
+          value: "2023-10-16"
+        envFrom:
+        - configMapRef:
+            name: prod-global-config-8kkb7m725k
+        - secretRef:
+            name: prod-billing-secrets-98ddggkfgg
+        image: registry.enterprise.com/billing-service:v1.9.0
+        name: app
+        ports:
+        - containerPort: 8080

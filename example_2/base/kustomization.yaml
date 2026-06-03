@@ -1,0 +1,5 @@
+# MINIMAL BASE FOR MODULAR COMPONENTS
+# This base provides just the core application manifests.
+# The complexity is moved into reusable "Components".
+resources:
+- app.yaml

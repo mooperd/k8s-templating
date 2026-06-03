@@ -1,0 +1,51 @@
+# ENTERPRISE FLEET OVERLAY
+# High-complexity example showing:
+# 1. Multi-file ConfigMap generation (Properties + JSON)
+# 2. Secret generation from .env files
+# 3. Dynamic Service-to-Service wiring via "replacements"
+resources:
+- ../../base
+
+namePrefix: prod-
+namespace: prod-fleet
+
+images:
+- name: auth-service
+  newName: registry.enterprise.com/auth-service
+  newTag: v2.4.1
+- name: billing-service
+  newName: registry.enterprise.com/billing-service
+  newTag: v1.9.0
+
+# configMapGenerator: Combines different file types into a single ConfigMap.
+configMapGenerator:
+- name: global-config
+  files:
+  - config/global.properties
+  - config/features.json
+
+# secretGenerator: Pulls secrets from local environment files, 
+# ensuring they are never hardcoded in the YAML.
+secretGenerator:
+- name: auth-secrets
+  envs:
+  - secrets/auth.env
+- name: billing-secrets
+  envs:
+  - secrets/billing.env
+
+# replacements: The "brain" of complex Kustomize setups.
+# It copies the rendered name of one resource (Auth Service) and 
+# injects it into the environment variables of another (Billing Service).
+# This solves the "Dynamic URL" problem across environments.
+replacements:
+- source:
+    kind: Service
+    name: auth-service
+    fieldPath: metadata.name
+  targets:
+  - select:
+      kind: Deployment
+      name: billing-service
+    fieldPaths:
+    - spec.template.spec.containers.[name=app].env.[name=AUTH_SERVICE_HOST].value

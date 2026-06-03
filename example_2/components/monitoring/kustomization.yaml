@@ -1,0 +1,30 @@
+# REUSABLE COMPONENT: MONITORING
+# Components are "mixins" that can be applied to any deployment.
+# Unlike bases, they are designed to be pluggable.
+kind: Component
+apiVersion: kustomize.config.k8s.io/v1alpha1
+metadata:
+  name: monitoring
+
+# This patch adds Prometheus annotations and a sidecar.
+# By targeting kind: Deployment without a specific name, 
+# it applies to ALL deployments in the scope.
+patches:
+- target:
+    kind: Deployment
+  patch: |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: unused
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+    spec:
+      template:
+        spec:
+          containers:
+          - name: prometheus-exporter
+            image: prom/statsd-exporter:latest
+            ports:
+            - containerPort: 9102

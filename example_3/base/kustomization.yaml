@@ -1,0 +1,10 @@
+# FLEET MANAGEMENT BASE
+# This base demonstrates managing multiple independent services 
+# (Auth, Billing) within a single "fleet" or domain.
+resources:
+- auth
+- billing
+
+labels:
+- pairs:
+    fleet: enterprise

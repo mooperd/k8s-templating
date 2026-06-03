@@ -1,0 +1,63 @@
+# PRODUCTION HARDENING OVERLAY
+# This is a high-complexity overlay showing production-grade customizations:
+# - Namespace isolation
+# - Specific image versions and registries
+# - Strategic Merge Patches for resource limits and sidecar injection
+resources:
+- ../../base
+
+namePrefix: prod-
+namespace: production
+
+images:
+- name: nginx
+  newName: nginx
+  newTag: 1.21.1
+- name: my-api-image
+  newName: registry.mycorp.com/api
+  newTag: v1.0.5-sha256-abcdef
+
+secretGenerator:
+- name: db-conn
+  literals:
+  - url=postgres://prod-user:SUPER_SECRET_PASSWORD@prod-db:5432/proddb
+
+patches:
+# 1. Scale up the API for production load
+- target:
+    kind: Deployment
+    name: api-server
+  patch: |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: api-server
+    spec:
+      replicas: 5
+
+# 2. Strategic Merge Patch: Injects a sidecar and adds resource limits.
+# Note how we don't rewrite the whole deployment, just the parts we want to change.
+- target:
+    kind: Deployment
+    name: web-server
+  patch: |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: web-server
+    spec:
+      template:
+        spec:
+          containers:
+          - name: nginx
+            resources:
+              limits:
+                cpu: 500m
+                memory: 512Mi
+              requests:
+                cpu: 100m
+                memory: 128Mi
+          - name: log-exporter
+            image: fluentbit:latest
+            ports:
+            - containerPort: 2020

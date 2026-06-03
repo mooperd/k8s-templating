@@ -1,0 +1,24 @@
+# DEV OVERLAY
+# This overlay "patches" the base configuration for a development environment.
+# It imports the base resources and applies environment-specific changes.
+resources:
+- ../../base
+
+# namePrefix: Prepends a string to ALL resource names to avoid collisions.
+namePrefix: dev-
+
+# labels: Adds metadata to all resources, useful for querying and organization.
+labels:
+- pairs:
+    env: dev
+
+# patches: Allows surgical modification of specific fields in the base resources.
+# Here we increase replicas specifically for the dev environment.
+patches:
+- target:
+    kind: Deployment
+    name: nginx-deployment
+  patch: |-
+    - op: replace
+      path: /spec/replicas
+      value: 2

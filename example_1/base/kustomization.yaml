@@ -1,0 +1,12 @@
+# MULTI-RESOURCE BASE
+# This base demonstrates managing a suite of related microservices 
+# (Web and API) as a single logical unit.
+resources:
+- web-resources.yaml
+- api-resources.yaml
+
+# labels: These labels are applied to every resource in this suite,
+# establishing a shared identity for the application stack.
+labels:
+- pairs:
+    app-suite: my-complex-app

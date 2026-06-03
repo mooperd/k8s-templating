@@ -1,0 +1,31 @@
+# REUSABLE COMPONENT: DB-PROXY
+# Demonstrates how a component can package both a sidecar 
+# and the configuration (ConfigMap) it requires.
+kind: Component
+apiVersion: kustomize.config.k8s.io/v1alpha1
+metadata:
+  name: db-proxy
+
+configMapGenerator:
+- name: db-proxy-config
+  literals:
+  - DB_HOST=prod-db-cluster
+  - DB_PORT=5432
+
+patches:
+- target:
+    kind: Deployment
+  patch: |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: unused
+    spec:
+      template:
+        spec:
+          containers:
+          - name: db-proxy
+            image: gcr.io/cloudsql-docker/gce-proxy:latest
+            envFrom:
+            - configMapRef:
+                name: db-proxy-config

@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: billing-service
+spec:
+  selector:
+    matchLabels:
+      app: billing
+  template:
+    metadata:
+      labels:
+        app: billing
+    spec:
+      containers:
+      - name: app
+        image: billing-service:latest
+        envFrom:
+        - configMapRef:
+            name: global-config
+        - secretRef:
+            name: billing-secrets
+        env:
+        - name: AUTH_SERVICE_HOST
+          value: "auth-service" # This will be dynamically replaced by Kustomize
+        - name: AUTH_SERVICE_URL
+          value: "http://$(AUTH_SERVICE_HOST):8080" # Kubernetes native env expansion
+        - name: STRIPE_API_VERSION
+          value: "2023-10-16"
+        ports:
+        - containerPort: 8080

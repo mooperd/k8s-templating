@@ -1,0 +1,15 @@
+# BASE KUSTOMIZATION
+# This is the foundational layer. It defines the core resources 
+# (Deployment, Service) that are shared across all environments.
+# Changes made here will propagate to all overlays.
+resources:
+- deployment.yaml
+- service.yaml
+
+# Generators create resources dynamically.
+# Using configMapGenerator ensures that any change to the literals
+# will update the ConfigMap's hash, triggering a rollout restart.
+configMapGenerator:
+- name: nginx-config
+  literals:
+  - version=1.0

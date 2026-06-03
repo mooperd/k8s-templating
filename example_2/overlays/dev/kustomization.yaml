@@ -1,0 +1,6 @@
+# MODULAR DEV OVERLAY
+# For development, we use the base as-is, without any extra components.
+resources:
+- ../../base
+
+namePrefix: dev-

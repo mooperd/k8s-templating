@@ -1,0 +1,13 @@
+# MODULAR PROD OVERLAY
+# Demonstrates the power of "Composition". We take the base and 
+# "plug in" the monitoring and DB-proxy modules.
+resources:
+- ../../base
+
+# components: This is where we import our reusable modules.
+components:
+- ../../components/monitoring
+- ../../components/db-proxy
+
+namePrefix: prod-
+namespace: production

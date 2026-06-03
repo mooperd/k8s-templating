@@ -1,0 +1,84 @@
+# Aggregated Kustomize Output for example_2
+
+---
+# OVERLAY: dev
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev-my-app
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: my-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-my-app
+spec:
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - image: my-app:v1.0.0
+        name: main
+
+---
+# OVERLAY: prod
+apiVersion: v1
+data:
+  DB_HOST: prod-db-cluster
+  DB_PORT: "5432"
+kind: ConfigMap
+metadata:
+  name: prod-db-proxy-config-dbk7gmgdf2
+  namespace: production
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prod-my-app
+  namespace: production
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: my-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    prometheus.io/port: "9090"
+    prometheus.io/scrape: "true"
+  name: prod-my-app
+  namespace: production
+spec:
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - envFrom:
+        - configMapRef:
+            name: prod-db-proxy-config-dbk7gmgdf2
+        image: gcr.io/cloudsql-docker/gce-proxy:latest
+        name: db-proxy
+      - image: prom/statsd-exporter:latest
+        name: prometheus-exporter
+        ports:
+        - containerPort: 9102
+      - image: my-app:v1.0.0
+        name: main

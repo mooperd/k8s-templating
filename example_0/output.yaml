@@ -1,0 +1,54 @@
+# Aggregated Kustomize Output for example_0
+
+---
+# OVERLAY: dev
+apiVersion: v1
+data:
+  version: "1.0"
+kind: ConfigMap
+metadata:
+  labels:
+    env: dev
+  name: dev-nginx-config-f9ccfk72f5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    env: dev
+  name: dev-nginx-service
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: nginx
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    env: dev
+  name: dev-nginx-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - env:
+        - name: APP_VERSION
+          valueFrom:
+            configMapKeyRef:
+              key: version
+              name: dev-nginx-config-f9ccfk72f5
+        image: nginx:1.14.2
+        name: nginx
+        ports:
+        - containerPort: 80

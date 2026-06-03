@@ -1,0 +1,19 @@
+# COMPLEX DEV OVERLAY
+# Demonstrates environment-specific image tags and secret generation.
+resources:
+- ../../base
+
+namePrefix: dev-
+
+# images: Overrides the image tags defined in the base without 
+# changing the base YAML files themselves.
+images:
+- name: my-api-image
+  newTag: dev-latest
+
+# secretGenerator: Creates Kubernetes Secrets from literal values.
+# This is ideal for development where secrets might be mocked.
+secretGenerator:
+- name: db-conn
+  literals:
+  - url=postgres://dev:dev-pass@localhost:5432/devdb

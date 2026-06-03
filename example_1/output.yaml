@@ -1,0 +1,184 @@
+# Aggregated Kustomize Output for example_1
+
+---
+# OVERLAY: dev
+apiVersion: v1
+data:
+  url: cG9zdGdyZXM6Ly9kZXY6ZGV2LXBhc3NAbG9jYWxob3N0OjU0MzIvZGV2ZGI=
+kind: Secret
+metadata:
+  name: dev-db-conn-m4682dfg2f
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app-suite: my-complex-app
+  name: dev-api-service
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector:
+    app: api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app-suite: my-complex-app
+  name: dev-web-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: web
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app-suite: my-complex-app
+  name: dev-api-server
+spec:
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              key: url
+              name: dev-db-conn-m4682dfg2f
+        image: my-api-image:dev-latest
+        name: api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app-suite: my-complex-app
+  name: dev-web-server
+spec:
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - image: nginx:stable
+        name: nginx
+        ports:
+        - containerPort: 80
+
+---
+# OVERLAY: prod
+apiVersion: v1
+data:
+  url: |
+    cG9zdGdyZXM6Ly9wcm9kLXVzZXI6U1VQRVJfU0VDUkVUX1BBU1NXT1JEQHByb2QtZGI6NT
+    QzMi9wcm9kZGI=
+kind: Secret
+metadata:
+  name: prod-db-conn-8hdbk8f69f
+  namespace: production
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app-suite: my-complex-app
+  name: prod-api-service
+  namespace: production
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector:
+    app: api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app-suite: my-complex-app
+  name: prod-web-service
+  namespace: production
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: web
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app-suite: my-complex-app
+  name: prod-api-server
+  namespace: production
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              key: url
+              name: prod-db-conn-8hdbk8f69f
+        image: registry.mycorp.com/api:v1.0.5-sha256-abcdef
+        name: api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app-suite: my-complex-app
+  name: prod-web-server
+  namespace: production
+spec:
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - image: nginx:1.21.1
+        name: nginx
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+      - image: fluentbit:latest
+        name: log-exporter
+        ports:
+        - containerPort: 2020
