@@ -1,0 +1,16 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: generic-app
+spec:
+  selector:
+    matchLabels:
+      core: generic
+  template:
+    metadata:
+      labels:
+        core: generic
+    spec:
+      containers:
+      - name: main
+        image: scratch

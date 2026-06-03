@@ -1,0 +1,28 @@
+# LEVEL 4: ENVIRONMENT OVERLAY (PROD)
+# The final environment configuration that brings everything together
+# and enables extreme tracing.
+resources:
+- ../../level3-app-base
+
+components:
+- ../../components/otel-tracing
+
+namePrefix: prod-
+namespace: finance-prod
+
+patches:
+- target:
+    kind: Deployment
+  patch: |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: unused
+    spec:
+      replicas: 10
+
+# EXTREME TRACEABILITY
+# originAnnotations: Tells you the source file (e.g., app.yaml)
+# transformerAnnotations: Tells you exactly which kustomize transformer 
+# (e.g., LabelTransformer) modified the resource and from which file in the chain.
+buildMetadata: [originAnnotations, transformerAnnotations]

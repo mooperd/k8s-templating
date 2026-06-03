@@ -1,0 +1,8 @@
+# LEVEL 1: CORPORATE BASE
+# The absolute minimum generic template.
+resources:
+- app.yaml
+
+labels:
+- pairs:
+    managed-by: corp-platform

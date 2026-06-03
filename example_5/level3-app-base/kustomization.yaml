@@ -1,0 +1,12 @@
+# LEVEL 3: APP BASE
+# The specific application inherits the division setup, defines the real image,
+# and renames the generic deployment.
+resources:
+- ../level2-division
+
+namePrefix: payment-api-
+
+images:
+- name: scratch
+  newName: finance-registry/payment-api
+  newTag: v3.1.4

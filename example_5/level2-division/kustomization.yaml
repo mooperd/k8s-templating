@@ -1,0 +1,23 @@
+# LEVEL 2: DIVISION OVERLAY
+# The division inherits the corp base and adds their own sidecar and labels.
+resources:
+- ../level1-corp-base
+
+labels:
+- pairs:
+    division: finance
+
+patches:
+- target:
+    kind: Deployment
+  patch: |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: unused
+    spec:
+      template:
+        spec:
+          containers:
+          - name: finance-auditor
+            image: corp-registry/auditor:1.0

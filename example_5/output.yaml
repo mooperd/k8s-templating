@@ -1,0 +1,77 @@
+# Aggregated Kustomize Output for example_5
+
+---
+# OVERLAY: prod
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    alpha.config.kubernetes.io/transformations: |
+      - configuredIn: ../../level1-corp-base/kustomization.yaml
+        configuredBy:
+          apiVersion: builtin
+          kind: LabelTransformer
+      - configuredIn: ../../level1-corp-base/kustomization.yaml
+        configuredBy:
+          apiVersion: builtin
+          kind: LabelTransformer
+      - configuredIn: ../../level2-division/kustomization.yaml
+        configuredBy:
+          apiVersion: builtin
+          kind: PatchTransformer
+      - configuredIn: ../../level2-division/kustomization.yaml
+        configuredBy:
+          apiVersion: builtin
+          kind: LabelTransformer
+      - configuredIn: ../../level2-division/kustomization.yaml
+        configuredBy:
+          apiVersion: builtin
+          kind: LabelTransformer
+      - configuredIn: ../../level3-app-base/kustomization.yaml
+        configuredBy:
+          apiVersion: builtin
+          kind: PrefixTransformer
+      - configuredIn: ../../level3-app-base/kustomization.yaml
+        configuredBy:
+          apiVersion: builtin
+          kind: ImageTagTransformer
+      - configuredIn: ../../components/otel-tracing/kustomization.yaml
+        configuredBy:
+          apiVersion: builtin
+          kind: PatchTransformer
+      - configuredIn: kustomization.yaml
+        configuredBy:
+          apiVersion: builtin
+          kind: PatchTransformer
+      - configuredIn: kustomization.yaml
+        configuredBy:
+          apiVersion: builtin
+          kind: NamespaceTransformer
+      - configuredIn: kustomization.yaml
+        configuredBy:
+          apiVersion: builtin
+          kind: PrefixTransformer
+    config.kubernetes.io/origin: |
+      path: ../../level1-corp-base/app.yaml
+  labels:
+    division: finance
+    managed-by: corp-platform
+  name: prod-payment-api-generic-app
+  namespace: finance-prod
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      core: generic
+  template:
+    metadata:
+      annotations:
+        instrumentation.opentelemetry.io/inject-java: "true"
+      labels:
+        core: generic
+    spec:
+      containers:
+      - image: corp-registry/auditor:1.0
+        name: finance-auditor
+      - image: finance-registry/payment-api:v3.1.4
+        name: main
