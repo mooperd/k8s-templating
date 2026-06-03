@@ -1,0 +1,29 @@
+# Aggregated Kustomize Output for example_4
+
+---
+# OVERLAY: prod
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    config.kubernetes.io/origin: |
+      path: ../../base/app.yaml
+  labels:
+    modified-by: security-hardener
+  name: prod-secured-app
+  namespace: secure-zone
+spec:
+  selector:
+    matchLabels:
+      app: secured-app
+  template:
+    metadata:
+      labels:
+        app: secured-app
+    spec:
+      containers:
+      - image: my-app:v1.0.0
+        name: main
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000

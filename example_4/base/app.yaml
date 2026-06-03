@@ -1,0 +1,16 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secured-app
+spec:
+  selector:
+    matchLabels:
+      app: secured-app
+  template:
+    metadata:
+      labels:
+        app: secured-app
+    spec:
+      containers:
+      - name: main
+        image: my-app:v1.0.0

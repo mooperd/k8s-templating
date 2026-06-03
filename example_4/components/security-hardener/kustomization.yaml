@@ -1,0 +1,27 @@
+# COMPONENT WITH ORIGIN TAGGING
+# We use labels to tag exactly which component modified the resource.
+kind: Component
+apiVersion: kustomize.config.k8s.io/v1alpha1
+metadata:
+  name: security-hardener
+
+# By adding this label, any resource modified by this component
+# will carry a "fingerprint" in the final output.
+labels:
+- pairs:
+    modified-by: security-hardener
+
+patches:
+- target:
+    kind: Deployment
+  patch: |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: unused
+    spec:
+      template:
+        spec:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000

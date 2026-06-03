@@ -44,11 +44,11 @@ kubectl version --client
 - **Educational Value:** Instead of copy-pasting monitoring or database proxy settings into every app, you package them into reusable "Components."
 - **Key Feature:** Components are "mixins." You can "plug in" a monitoring component to any deployment just by adding a reference to it in your kustomization. This is the gold standard for managing cross-cutting concerns in large organizations.
 
-### [Example 3: Enterprise Fleet & Dynamic Wiring](./example_3)
-**Goal:** Managing complex dependencies between microservices.
-- **Concepts:** `replacements`, multi-file Generators, Secret injection.
-- **Educational Value:** Models a "Fleet" (Auth and Billing services). It solves the "Dynamic URL" problem: how does the Billing service know the URL of the Auth service when the Auth service's name changes in every environment (e.g., `dev-auth-service` vs. `prod-auth-service`)?
-- **Key Feature:** `replacements` act as the "brain." They copy the rendered name of the Auth service and inject it directly into the environment variables of the Billing service at build time.
+### [Example 4: Traceability & Leon's Problem](./example_4)
+**Goal:** Solve the "Where did this YAML come from?" problem in complex setups.
+- **Concepts:** `buildMetadata`, `labels` (for tagging), `securityContext`.
+- **Educational Value:** Shows two ways to audit your configuration. It uses labels to "fingerprint" which component modified a resource and `buildMetadata` to inject the original file path as an annotation.
+- **Key Feature:** The final YAML contains `config.kubernetes.io/origin` annotations and `modified-by` labels, providing a 100% transparent audit trail of the templating process.
 
 ---
 

@@ -1,0 +1,14 @@
+# TRACEABILITY OVERLAY
+# Demonstrates how to see "who did what" in a complex build.
+resources:
+- ../../base
+
+components:
+- ../../components/security-hardener
+
+namePrefix: prod-
+namespace: secure-zone
+
+# buildMetadata: This is a powerful feature that adds annotations
+# to every resource showing the original file path it came from.
+buildMetadata: [originAnnotations]
